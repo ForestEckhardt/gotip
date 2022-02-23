@@ -1,5 +1,7 @@
 # Gotip buildpack
 
+:rotating_light::rotating_light::rotating_light::warning: WARNING THIS REPO IS EXPIREMENTAL AND HIGHLY UNTESTED USE AT YOUR OWN RISK:warning::rotating_light::rotating_light::rotating_light:
+
 This buildpack installs a version of Go using [`gotip`](https://pkg.go.dev/golang.org/dl/gotip).
 
 ## Usage
