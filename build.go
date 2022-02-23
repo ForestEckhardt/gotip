@@ -71,17 +71,12 @@ func Build(
 		logs.Action("Completed in %s", duration.Round(time.Millisecond))
 		logs.Break()
 
-		env := os.Environ()
-
 		tempPath := fmt.Sprintf("%s:%s", filepath.Join(tempGoLayer.Path, "bin"), os.Getenv("PATH"))
 
 		tempGopath, err := os.MkdirTemp(tempGoLayer.Path, "temp-gopath")
 		if err != nil {
 			return packit.BuildResult{}, err
 		}
-
-		env = setOrOverride(env, "PATH", tempPath)
-		env = setOrOverride(env, "GOPATH", tempGopath)
 
 		logs.Process("Installing gotip")
 
@@ -93,7 +88,7 @@ func Build(
 			return goExecutable.Execute(pexec.Execution{
 				Args:   args,
 				Dir:    context.WorkingDir,
-				Env:    env,
+				Env:    append(os.Environ(), fmt.Sprintf("PATH=%s", tempPath), fmt.Sprintf("GOPATH=%s", tempGopath)),
 				Stdout: buffer,
 				Stderr: buffer,
 			})
@@ -119,16 +114,13 @@ func Build(
 			return packit.BuildResult{}, err
 		}
 
-		env = setOrOverride(env, "PATH", tempPath)
-		env = setOrOverride(env, "HOME", tempHome)
-
 		logs.Subprocess("Running gotip %s", strings.Join(args, " "))
 		buffer = bytes.NewBuffer(nil)
 		duration, err = clock.Measure(func() error {
 			return gotipExecutable.Execute(pexec.Execution{
 				Args:   args,
 				Dir:    context.WorkingDir,
-				Env:    env,
+				Env:    append(os.Environ(), fmt.Sprintf("PATH=%s", tempPath), fmt.Sprintf("HOME=%s", tempHome)),
 				Stdout: buffer,
 				Stderr: buffer,
 			})
@@ -175,22 +167,4 @@ func Build(
 			Layers: []packit.Layer{goLayer},
 		}, nil
 	}
-}
-
-func setOrOverride(env []string, name, val string) []string {
-	var set bool
-	for i, e := range env {
-		splitEnv := strings.Split(e, "=")
-		if splitEnv[0] == name {
-			env[i] = fmt.Sprintf("%s=%s", name, val)
-			set = true
-			break
-		}
-	}
-
-	if !set {
-		env = append(env, fmt.Sprintf("%s=%s", name, val))
-	}
-
-	return env
 }
