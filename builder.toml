@@ -1,0 +1,35 @@
+description = "Example builder that uses the gotip buildpack"
+
+[[buildpacks]]
+  uri = "docker://index.docker.io/paketobuildpacks/go-build"
+
+[[buildpacks]]
+  uri = "docker://index.docker.io/paketobuildpacks/go-mod-vendor"
+
+[[buildpacks]]
+  uri = "docker://index.docker.io/foresteckhardt/gotip"
+
+[[order]]
+
+  [[order.group]]
+    id = "ForestEckhardt/gotip"
+
+  [[order.group]]
+    id = "paketo-buildpacks/go-mod-vendor"
+
+  [[order.group]]
+    id = "paketo-buildpacks/go-build"
+
+[[order]]
+
+  [[order.group]]
+    id = "ForestEckhardt/gotip"
+
+  [[order.group]]
+    id = "paketo-buildpacks/go-build"
+
+[stack]
+  build-image = "docker.io/paketobuildpacks/build:base-cnb"
+  id = "io.buildpacks.stacks.bionic"
+  run-image = "index.docker.io/paketobuildpacks/run:base-cnb"
+  run-image-mirrors = ["gcr.io/paketo-buildpacks/run:base-cnb"]
